@@ -51,13 +51,17 @@ def check_tokens():
 
 def send_message(bot, message):
     """Отправляет сообщение."""
-    bot.send_message(
-        chat_id=TELEGRAM_CHAT_ID,
-        text=message
-    )
-    logging.debug(
-        f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение: "{message}"'
-    )
+    try:
+        bot.send_message(
+            chat_id=TELEGRAM_CHAT_ID,
+            text=message
+        )
+        logging.debug(
+            f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение: "{message}"'
+        )
+    except Exception as e:
+        logging.error(f'Ошибка при отправке сообщения {e}')
+        raise
 
 
 def get_api_answer(timestamp):
@@ -148,18 +152,15 @@ def main():
                     if last_statuses.get(homework_name) != now_status_message:
                         try:
                             send_message(bot, now_status_message)
-                            last_statuses[homework_name] = now_status_message
                         except Exception as error:
                             logging.error(
                                 f'Ошибка при отправке сообщения: {error}')
+                        last_statuses[homework_name] = now_status_message
             timestamp = response.get('current_date', timestamp)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
-            try:
-                send_message(bot, message)
-            except Exception as e:
-                logging.error(f'Ошибка при отправке сообщения об ошибке: {e}')
+            send_message(bot, message)
         time.sleep(RETRY_PERIOD)
 
 
