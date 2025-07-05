@@ -57,7 +57,7 @@ def send_message(bot, message):
             text=message
         )
         logging.debug(
-            f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение: "{message}"'
+            f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение:"{message}"'
         )
     except Exception as e:
         logging.error(f'Ошибка при отправке сообщения {e}')
@@ -135,7 +135,7 @@ def main():
     if not check_tokens():
         exit()
     bot = TeleBot(token=TELEGRAM_TOKEN)
-    timestamp = time.time()
+    timestamp = int(time.time())
     last_statuses = {}
 
     while True:
@@ -156,7 +156,7 @@ def main():
                             logging.error(
                                 f'Ошибка при отправке сообщения: {error}')
                         last_statuses[homework_name] = now_status_message
-            timestamp = response.get('current_date', timestamp)
+            timestamp = int(response.get('current_date', timestamp))
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
