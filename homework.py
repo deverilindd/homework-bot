@@ -57,7 +57,7 @@ def send_message(bot, message):
             text=message
         )
         logging.debug(
-            f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение: "{message}"'
+            f'Пользователю:{TELEGRAM_CHAT_ID} отправлено сообщение:"{message}"'
         )
     except Exception as e:
         logging.error(f'Ошибка при отправке сообщения {e}')
