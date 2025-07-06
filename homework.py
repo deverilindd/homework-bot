@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 
 
-class WrongCodeException(Exception):
+class WrongCodeError(Exception):
     """Вернулся код, отличный от 200."""
 
     ...
@@ -74,7 +74,7 @@ def get_api_answer(timestamp):
             params=params,
         )
         if response.status_code != 200:
-            raise WrongCodeException
+            raise WrongCodeError
 
     except requests.RequestException:
         error_text = f'API вернул код {response.status_code}. URL: {ENDPOINT}'
