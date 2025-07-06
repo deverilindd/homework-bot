@@ -13,7 +13,7 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD = 600
+RETRY_PERIOD = 10 * 60
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -34,19 +34,19 @@ logging.basicConfig(
 )
 
 
+class WrongCodeException(Exception):
+    """Вернулся код, отличный от 200."""
+
+    ...
+
+
 def check_tokens():
     """Проверяет наличие переменных окружения."""
-    env_vars = {
-        'PRACTICUM_TOKEN': PRACTICUM_TOKEN,
-        'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
-        'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID
-    }
-    is_vars_valid = True
-    for var in env_vars.keys():
-        if env_vars[var] in (None, ''):
-            logging.critical(f'{var} - отсутсвует')
-            is_vars_valid = False
-    return is_vars_valid
+    if not all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)):
+        logging.critical('Отсутствует переменная окружения')
+        return False
+    else:
+        return True
 
 
 def send_message(bot, message):
@@ -74,12 +74,12 @@ def get_api_answer(timestamp):
             params=params,
         )
         if response.status_code != 200:
-            raise requests.RequestException
+            raise WrongCodeException
 
     except requests.RequestException:
-        raise requests.RequestException(
-            f"API вернул код {response.status_code}. URL: {ENDPOINT}"
-        )
+        error_text = f'API вернул код {response.status_code}. URL: {ENDPOINT}'
+        logging.error(error_text)
+        raise requests.RequestException(error_text)
     except ValueError:
         error_text = 'Не удалось преобразовать ответ от API'
         logging.error(error_text)
@@ -161,7 +161,8 @@ def main():
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
             send_message(bot, message)
-        time.sleep(RETRY_PERIOD)
+        finally:
+            time.sleep(RETRY_PERIOD)
 
 
 if __name__ == '__main__':
