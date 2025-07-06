@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 
 
-class WrongCodeException(Exception):
+class WrongCodeError(Exception):
     """Вернулся код, отличный от 200."""
 
     ...
