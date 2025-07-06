@@ -37,8 +37,6 @@ logging.basicConfig(
 class WrongCodeError(Exception):
     """Вернулся код, отличный от 200."""
 
-    pass
-
 
 def check_tokens():
     """Проверяет наличие переменных окружения."""
